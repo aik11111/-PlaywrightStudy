@@ -1,23 +1,22 @@
-import re
+import pytest
 from playwright.sync_api import Page, expect
+# 1. 우리가 만든 리모컨(클래스)을 가져옵니다.
+from pages.login_page import LoginPage
 
-def test_sauce_demo_full_flow(page: Page):
-    # 1. 접속 및 로그인
-    page.goto("https://www.saucedemo.com/")
+@pytest.mark.parametrize("username, password, expected_url", [
+    ("standard_user", "secret_sauce", "inventory.html"),
+    ("problem_user", "secret_sauce", "inventory.html")
+])
+def test_multiple_logins_with_pom(page: Page, username, password, expected_url):
+    # 2. 리모컨 조립 (인스턴스화)
+    # 픽스처로 받은 page를 리모컨(LoginPage)에 끼워 넣습니다.
+    login_page = LoginPage(page)
+
+    # 3. 리모컨 버튼 누르기 (동작)
+    # 로케이터가 뭔지 몰라도 이름만 보고 기능을 실행합니다.
+    login_page.navigate()
+    login_page.login(username, password)
     
-    page.locator("#user-name").fill("standard_user")
-    page.locator("#password").fill("secret_sauce")
-    page.locator("#login-button").click()
-
-    # 2. 장바구니 담기 (Backpack)
-    # filter와 get_by_role의 파이썬 문법을 확인하세요.
-    backpack_item = page.locator(".inventory_item").filter(has_text="Sauce Labs Backpack")
-    backpack_item.get_by_role("button", name="Add to cart").click()
-
-    # 3. 장바구니 배지 숫자 확인
-    cart_badge = page.locator(".shopping_cart_badge")
-    expect(cart_badge).to_have_text("1")
-
-    # 4. 장바구니 이동 및 상품 확인
-    page.locator(".shopping_cart_link").click()
-    expect(page.locator(".inventory_item_name")).to_have_text("Sauce Labs Backpack")
+    # 4. 검증 (Assertion)
+    import re
+    expect(page).to_have_url(re.compile(expected_url))
