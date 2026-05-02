@@ -2,21 +2,20 @@ import pytest
 from playwright.sync_api import Page, expect
 # 1. 우리가 만든 리모컨(클래스)을 가져옵니다.
 from pages.login_page import LoginPage
+from pages.inventory_page import InventoryPage
 
-@pytest.mark.parametrize("username, password, expected_url", [
-    ("standard_user", "secret_sauce", "inventory.html"),
-    ("problem_user", "secret_sauce", "inventory.html")
-])
-def test_multiple_logins_with_pom(page: Page, username, password, expected_url):
-    # 2. 리모컨 조립 (인스턴스화)
-    # 픽스처로 받은 page를 리모컨(LoginPage)에 끼워 넣습니다.
+def test_full_shopping_flow(page: Page):
+    # 1. 리모컨들 준비
     login_page = LoginPage(page)
+    inventory_page = InventoryPage(page)
 
-    # 3. 리모컨 버튼 누르기 (동작)
-    # 로케이터가 뭔지 몰라도 이름만 보고 기능을 실행합니다.
+    # 2. 로그인 진행 (첫 번째 리모컨 사용)
     login_page.navigate()
-    login_page.login(username, password)
-    
-    # 4. 검증 (Assertion)
-    import re
-    expect(page).to_have_url(re.compile(expected_url))
+    login_page.login("standard_user", "secret_sauce")
+
+    # 3. 상품 추가 (두 번째 리모컨 사용)
+    inventory_page.add_backpack()
+
+    # 4. 검증 (게터 함수로 받은 값이 '1'인지 확인)
+    assert inventory_page.get_cart_count() == "1"
+    print("\n장바구니에 물건이 1개 담긴 것을 확인했습니다!")
