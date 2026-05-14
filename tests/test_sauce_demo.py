@@ -8,7 +8,7 @@ def test_full_shopping_flow(login_user):
     page = login_user # 이미 로그인 됨
     inventory_page = InventoryPage(page)
     inventory_page.add_backpack()
-    assert inventory_page.get_cart_count() == "1"
+    assert inventory_page.get_cart_count() == "2"
 
 def test_product_price_sorting(login_user):
     page = login_user # 이미 로그인 됨
