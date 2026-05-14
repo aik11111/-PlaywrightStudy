@@ -1,5 +1,7 @@
+import pytest 
 from playwright.sync_api import Page, expect
 import re
+
 
 def test_javascript_alerts(page: Page):
     # 1. 해당 연습 페이지로 이동
@@ -43,6 +45,7 @@ def test_multiple_windows(page: Page):
     # 5. (선택) 원래 창으로 돌아와서 확인하기
     expect(page.get_by_role("heading")).to_have_text("Opening a new window")
 
+@pytest.mark.skip(reason="외부 사이트 사용량 제한으로 인한 에디터 잠금 문제")
 def test_iframe_handling(page: Page):
     page.goto("https://the-internet.herokuapp.com/iframe")
 
